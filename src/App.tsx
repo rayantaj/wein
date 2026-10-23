@@ -1,18 +1,20 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Box } from '@chakra-ui/react'
 import { cities, type City } from './data/cities'
 import { cityOfDay, puzzleNumber, randomCity } from './game/daily'
 import { evaluate, gameState, type Guess } from './game/guess'
 import { shareText } from './game/share'
 import { recordResult } from './game/stats'
-import { loadStats, loadToday, saveStats, saveToday } from './game/storage'
+import { loadLang, loadSeen, loadStats, loadToday, saveLang, saveSeen, saveStats, saveToday } from './game/storage'
+import { t } from './i18n'
 import { Board } from './ui/Board'
 import { GuessInput } from './ui/GuessInput'
 import { Header } from './ui/Header'
+import { HelpDialog } from './ui/HelpDialog'
+import { MapView } from './ui/MapView'
 import { Result } from './ui/Result'
 import { StatsDialog } from './ui/StatsDialog'
 
-const lang = 'ar'
 const URL = 'https://rayantaj.github.io/wein/'
 
 export default function App() {
@@ -28,6 +30,15 @@ export default function App() {
   const [practice, setPractice] = useState<{ target: City; guesses: Guess[] } | null>(null)
   const [stats, setStats] = useState(loadStats)
   const [showStats, setShowStats] = useState(false)
+
+  const [lang, setLang] = useState(loadLang)
+  const [showHelp, setShowHelp] = useState(() => !loadSeen())
+  useEffect(() => {
+    document.documentElement.lang = lang
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'
+    document.title = t(lang, 'title')
+    saveLang(lang)
+  }, [lang])
 
   const target = practice?.target ?? today
   const guesses = practice?.guesses ?? dailyGuesses
@@ -51,8 +62,15 @@ export default function App() {
 
   return (
     <Box maxW="480px" mx="auto" px="16px">
-      <Header lang={lang} n={n} onStats={() => setShowStats(true)} />
+      <Header
+        lang={lang}
+        n={n}
+        onStats={() => setShowStats(true)}
+        onHelp={() => setShowHelp(true)}
+        onLang={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+      />
       <Board lang={lang} guesses={guesses} target={target} />
+      <MapView lang={lang} guesses={guesses} target={target} over={state !== 'playing'} />
       {state === 'playing' ? (
         <GuessInput key={practice ? target.id : 'daily'} lang={lang} guessedIds={guesses.map((g) => g.id)} onGuess={onGuess} />
       ) : (
@@ -68,6 +86,14 @@ export default function App() {
         />
       )}
       <StatsDialog lang={lang} stats={stats} open={showStats} onClose={() => setShowStats(false)} />
+      <HelpDialog
+        lang={lang}
+        open={showHelp}
+        onClose={() => {
+          setShowHelp(false)
+          saveSeen()
+        }}
+      />
     </Box>
   )
 }

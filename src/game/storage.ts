@@ -31,6 +31,38 @@ export function saveToday(s: Today): void {
   }
 }
 
+export function loadLang(): 'ar' | 'en' {
+  try {
+    return localStorage.getItem('wein:lang') === 'en' ? 'en' : 'ar'
+  } catch {
+    return 'ar'
+  }
+}
+
+export function saveLang(lang: 'ar' | 'en'): void {
+  try {
+    localStorage.setItem('wein:lang', lang)
+  } catch {
+    // same as saveToday
+  }
+}
+
+export function loadSeen(): boolean {
+  try {
+    return localStorage.getItem('wein:seen') === '1'
+  } catch {
+    return true
+  }
+}
+
+export function saveSeen(): void {
+  try {
+    localStorage.setItem('wein:seen', '1')
+  } catch {
+    // same as saveToday
+  }
+}
+
 export function loadStats(): Stats {
   try {
     const s = JSON.parse(localStorage.getItem(STATS_KEY) ?? 'null')

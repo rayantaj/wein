@@ -15,7 +15,7 @@ export function GuessRow({ lang, guess }: { lang: Lang; guess: Guess }) {
       px="12px"
       borderRadius="10px"
       borderWidth="1px"
-      bg={hit ? 'green.100' : undefined}
+      bg={hit ? 'green.subtle' : undefined}
       fontSize="14px"
     >
       <Text flex="1" fontWeight="bold" truncate>
@@ -23,7 +23,7 @@ export function GuessRow({ lang, guess }: { lang: Lang; guess: Guess }) {
       </Text>
       <span>{t(lang, 'km', { n: guess.km })}</span>
       <span>{guess.arrow}</span>
-      <span>{guess.closeness}٪</span>
+      <span>{guess.closeness}{lang === 'en' ? '%' : '٪'}</span>
       <span style={{ fontFamily: 'monospace' }} dir="ltr">
         {squares(guess.closeness)}
       </span>
