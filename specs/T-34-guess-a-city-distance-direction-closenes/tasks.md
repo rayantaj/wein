@@ -1,6 +1,6 @@
 # Guess a city: distance, direction, closeness, win or lose: tasks
 
-Built as T-34.
+Built as T-34: https://github.com/rayantaj/wein/pull/2.
 
 - [x] src/game/guess.ts: evaluate(city, target) → { id, km, arrow, closeness } using geo.ts; gameState(guesses, targetId) → 'playing' | 'won' | 'lost' (won when a guess id equals the target, lost after 6 without a hit); squares(closeness) → 5 characters: 🟩 per full 20 %, one 🟨 for a partial 10 % or more, ⬜ for the rest. Tests.
 - [x] src/game/search.ts: normalize(s) (lowercase; strip Arabic diacritics and tatweel; أ إ آ → ا; ة → ه; ى → ي; trim) and findCities(query, limit = 6): cities whose normalized ar or en starts with the normalized query first, then contains it. Tests with 'جد' → جدة, 'kho' → Khobar, 'الاحسا' → الأحساء-style spellings.
