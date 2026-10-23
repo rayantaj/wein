@@ -17,6 +17,12 @@ dark.addEventListener('change', applyDark)
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`)
+  // the bundle loaded before the worker existed, so cache what this page already fetched
+  navigator.serviceWorker.ready.then(async () => {
+    const urls = [location.href, ...performance.getEntriesByType('resource').map((r) => r.name)]
+    const cache = await caches.open('wein-v1')
+    await Promise.all(urls.filter((u) => u.startsWith(location.origin)).map((u) => cache.add(u).catch(() => {})))
+  })
 }
 
 createRoot(document.getElementById('root')!).render(

@@ -1,6 +1,6 @@
 # The map, English, help, install as an app, dark mode: tasks
 
-Built as T-36.
+Built as T-36: https://github.com/rayantaj/wein/pull/4.
 
 - [x] src/ui/MapView.tsx: an inline SVG (viewBox from src/data/outline.ts) with the country path (paper fill, ink stroke 1.5) and one dot per guess at project(lat, lon), radius 9, coloured by closeness (grey under 40, amber under 80, green at 80 and above), with a thin ink stroke; when the game is over, the hidden city as a larger green dot with a white ring. Shown under the board, full width, with a muted caption 'خريطة التخمينات'.
 - [x] Language: src/game/storage.ts loadLang()/saveLang() under 'wein:lang'; Header gets a button 'EN' / 'ع' that toggles; App sets document.documentElement.lang and dir, and passes lang everywhere; city names, the region hint, 'كم'/'km', the result, the stats and the share text all follow it. Chakra's direction follows dir.

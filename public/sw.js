@@ -20,6 +20,6 @@ self.addEventListener('fetch', (e) => {
         }
         return res
       })
-      .catch(() => caches.match(e.request).then((hit) => hit ?? caches.match('/wein/'))),
+      .catch(() => caches.match(e.request).then((hit) => hit ?? (e.request.mode === 'navigate' ? caches.match('/wein/') : Response.error()))),
   )
 })

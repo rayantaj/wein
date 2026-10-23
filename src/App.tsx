@@ -6,6 +6,7 @@ import { evaluate, gameState, type Guess } from './game/guess'
 import { shareText } from './game/share'
 import { recordResult } from './game/stats'
 import { loadLang, loadSeen, loadStats, loadToday, saveLang, saveSeen, saveStats, saveToday } from './game/storage'
+import { t } from './i18n'
 import { Board } from './ui/Board'
 import { GuessInput } from './ui/GuessInput'
 import { Header } from './ui/Header'
@@ -35,6 +36,7 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = lang
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'
+    document.title = t(lang, 'title')
     saveLang(lang)
   }, [lang])
 
