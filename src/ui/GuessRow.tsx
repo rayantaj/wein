@@ -15,7 +15,7 @@ export function GuessRow({ lang, guess }: { lang: Lang; guess: Guess }) {
       px="12px"
       borderRadius="10px"
       borderWidth="1px"
-      bg={hit ? 'green.100' : undefined}
+      bg={hit ? 'green.subtle' : undefined}
       fontSize="14px"
     >
       <Text flex="1" fontWeight="bold" truncate>
