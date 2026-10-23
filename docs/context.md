@@ -10,12 +10,18 @@ React 18, Vite, TypeScript, Chakra UI v3 (Provider in main.tsx), IBM Plex Sans A
 - src/data/outline.ts: country outline as an SVG path, plus project(lat, lon) on a fixed box. Don't edit.
 - src/game/geo.ts: distanceKm, bearing, arrow, closeness (pure, tested).
 - src/game/daily.ts: riyadhDate, puzzleNumber (day 1 = 2026-10-23), cityOfDay (seeded shuffle), randomCity.
-- src/game/geo.test.ts, src/game/daily.test.ts: Vitest tests.
+- src/game/guess.ts: evaluate(city, target) gives id, km, arrow, closeness; gameState gives playing, won or lost; squares(closeness); MAX_GUESSES = 6.
+- src/game/search.ts: normalize(s) for Arabic spelling; findCities(query, limit) lists starts-with matches first, then contains.
+- src/game/storage.ts: loadToday and saveToday under 'wein:today'; loadToday ignores a saved n that isn't today's. Both in try/catch.
+- src/game/*.test.ts: Vitest tests (geo, daily, guess, search).
 - src/i18n.ts: every shown string in ar and en, and t(lang, key, vars). Arabic is the default.
 - src/main.tsx: mounts React and the Chakra Provider.
-- src/App.tsx: the page; renders Header and Board.
+- src/App.tsx: the page. Holds target, guesses (restored from storage) and lang; on a guess it evaluates, saves and re-renders. Shows GuessInput while playing, Result when won or lost.
 - src/ui/Header.tsx: the title and 'لغز رقم n'.
-- src/ui/Board.tsx: six empty slots; no input yet.
+- src/ui/Board.tsx: filled rows, then empty slots; from the third guess, the region hint line.
+- src/ui/GuessInput.tsx: the text box and up to 6 city options (arrow keys, Enter, tap); hides cities already guessed.
+- src/ui/GuessRow.tsx: a filled row: name, km, arrow, percent and five squares.
+- src/ui/Result.tsx: the win or lose message, with the hidden city's region when lost. Leaves a slot for Share.
 - src/index.css: global styles.
 - index.html: lang ar, dir rtl, title, phone viewport, theme-color.
 - vite.config.ts: base '/wein/' (the Pages path).
@@ -24,6 +30,7 @@ React 18, Vite, TypeScript, Chakra UI v3 (Provider in main.tsx), IBM Plex Sans A
 - docs/: stage documents (brief, tech, architecture). Tasks don't edit them.
 - specs/: one folder per built Feature (requirements, design, tasks).
   - specs/T-33-set-up-the-app-the-daily-city-and-the-em/: Feature 1, app setup, daily city, empty board.
+  - specs/T-34-guess-a-city-distance-direction-closenes/: Feature 2, the guessing game.
 
 ## Checks
 npm ci && npm run lint && npm run build && npm test. build is tsc -b && vite build.
@@ -39,3 +46,5 @@ npm ci && npm run lint && npm run build && npm test. build is tsc -b && vite bui
 ## Known debt
 - README.md has no link to the Pages URL yet (review nit, T-33).
 - src/ui/Board.tsx: the list has no accessible name (review nit, T-33). Name it from i18n.
+- src/ui/GuessInput.tsx: options have no ids and the input has no aria-activedescendant, so screen readers don't hear the option the arrow keys pick (review nit, T-34).
+- src/App.tsx: guesses don't reset if the tab stays open past midnight in Riyadh (review nit, T-34).
