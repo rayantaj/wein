@@ -1,42 +1,73 @@
 import { useState } from 'react'
 import { Box } from '@chakra-ui/react'
 import { cities, type City } from './data/cities'
-import { cityOfDay, puzzleNumber } from './game/daily'
+import { cityOfDay, puzzleNumber, randomCity } from './game/daily'
 import { evaluate, gameState, type Guess } from './game/guess'
-import { loadToday, saveToday } from './game/storage'
+import { shareText } from './game/share'
+import { recordResult } from './game/stats'
+import { loadStats, loadToday, saveStats, saveToday } from './game/storage'
 import { Board } from './ui/Board'
 import { GuessInput } from './ui/GuessInput'
 import { Header } from './ui/Header'
 import { Result } from './ui/Result'
+import { StatsDialog } from './ui/StatsDialog'
 
 const lang = 'ar'
+const URL = 'https://rayantaj.github.io/wein/'
 
 export default function App() {
   const n = puzzleNumber()
-  const target = cityOfDay(n)
-  const [guesses, setGuesses] = useState<Guess[]>(() =>
+  const today = cityOfDay(n)
+  const [dailyGuesses, setDailyGuesses] = useState<Guess[]>(() =>
     loadToday().flatMap((id) => {
       const c = cities.find((x) => x.id === id)
-      return c ? [evaluate(c, target)] : []
+      return c ? [evaluate(c, today)] : []
     }),
   )
+  // practice: a random city and its own guesses; null means today's puzzle
+  const [practice, setPractice] = useState<{ target: City; guesses: Guess[] } | null>(null)
+  const [stats, setStats] = useState(loadStats)
+  const [showStats, setShowStats] = useState(false)
+
+  const target = practice?.target ?? today
+  const guesses = practice?.guesses ?? dailyGuesses
   const state = gameState(guesses, target.id)
 
   const onGuess = (city: City) => {
     const next = [...guesses, evaluate(city, target)]
-    setGuesses(next)
-    saveToday({ n, guessIds: next.map((g) => g.id) })
+    if (practice) return setPractice({ target, guesses: next })
+    setDailyGuesses(next)
+    const end = gameState(next, target.id)
+    const guessIds = next.map((g) => g.id)
+    if (end === 'playing') return saveToday({ n, guessIds })
+    const s = recordResult(stats, { n, won: end === 'won', guessCount: next.length })
+    setStats(s)
+    saveStats(s)
+    saveToday({ n, guessIds, recorded: true })
+    setShowStats(true)
   }
+
+  const startPractice = () => setPractice({ target: randomCity(today.id), guesses: [] })
 
   return (
     <Box maxW="480px" mx="auto" px="16px">
-      <Header lang={lang} n={n} />
+      <Header lang={lang} n={n} onStats={() => setShowStats(true)} />
       <Board lang={lang} guesses={guesses} target={target} />
       {state === 'playing' ? (
-        <GuessInput lang={lang} guessedIds={guesses.map((g) => g.id)} onGuess={onGuess} />
+        <GuessInput key={practice ? target.id : 'daily'} lang={lang} guessedIds={guesses.map((g) => g.id)} onGuess={onGuess} />
       ) : (
-        <Result lang={lang} won={state === 'won'} count={guesses.length} target={target} />
+        <Result
+          lang={lang}
+          won={state === 'won'}
+          count={guesses.length}
+          target={target}
+          share={shareText({ n, guesses, won: state === 'won', lang, url: URL })}
+          practice={!!practice}
+          onPractice={startPractice}
+          onBack={() => setPractice(null)}
+        />
       )}
+      <StatsDialog lang={lang} stats={stats} open={showStats} onClose={() => setShowStats(false)} />
     </Box>
   )
 }
